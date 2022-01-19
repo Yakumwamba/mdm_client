@@ -10,12 +10,17 @@ import NetInfo from '@react-native-community/netinfo';
 import * as Network from 'expo-network';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-
-
+import Strapi from 'strapi-sdk-js'
+import * as qs from 'qs'
 import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const BACKGROUND_FETCH_TASK = 'background-fetch';
 let EXECUTED = false;
+
+
+
+
+
 
 // 1. Define the task by providing a name and the function that should be executed
 // Note: This needs to be called in the global scope (e.g outside of your React components)
@@ -111,6 +116,8 @@ const storeDeviceId = async () => {
           } catch (e) {
     
         }
+    } else {
+        checkUserId(serialNumber)
     }
   
   }
@@ -121,7 +128,70 @@ const storeDeviceId = async () => {
     console.log(seriallNumber)
     return seriallNumber
     }
+
+
+
+const  checkUserId = async (id: string) => {
+    const query = qs.stringify({
+        populate: ['*'],
+
+        filters: {
+            username: {
+              $eq: "admin",
+            },
+          },
+      }, {
+        encodeValuesOnly: true,
+      });
+      
+
+
+      try {
+        var bearer = 'Bearer ' + "a8a811e23501c1a84da97004a0cec6fa93d79f9f2bb0209300e2929eb458c00b81e9a0cec1858ed15a0c41155044bd22a329f67a2980370b8630238752ecb74d9d584a741ec3e04c57d4ea25cf3f933f1c5093a8f3546a6bc757720112857d42c779ce29f4f00a8e57b31a89f37070db30218fd4e848a5309318a00460fe3202";
+            const response = await fetch(`https://thutotime-api.herokuapp.com/api/devices/?${query}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': bearer
+                },
+     
+            });
+                       const responseJson = await response.json();
+            console.log(responseJson);
+        if (response.ok) {
+
+        console.log('response', responseJson);
+        }
+        console.log(response)
+
+
+    } catch (error) {
+       
+    }
+
+  
+
+}
+
 async function sendHeartBeat(executed: boolean, heartbeat: object) {
+
+
+    const strapi = new Strapi({
+        url: 'https://thutotime-api.herokuapp.com',
+        prefix: "/api",
+      
+    })
+
+
+
+// // query string
+//   const query = qs.stringify({
+//     populate: ['grades'],
+//   }, {
+//     encodeValuesOnly: true,
+//   });
+
 
     if (!EXECUTED) {
 
@@ -136,11 +206,11 @@ async function sendHeartBeat(executed: boolean, heartbeat: object) {
                 },
                 body: JSON.stringify(heartbeat)
             });
-            const responseJson = await response.json();
+                       const responseJson = await response.json();
             console.log(responseJson);
             if (responseJson.status === 200) {
                 console.log("Device information sent successfully");
-                //setExecuted(true);
+                //setExecuted(true);4
                 EXECUTED = true;
                 unregisterBackgroundFetchAsync();
             }

@@ -1,10 +1,20 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
 
+import { StyleSheet, Text, View } from 'react-native';
+import { registerBackgroundFetchAsync } from './utils';
 export default function App() {
+  
+  React.useEffect(() => {
+
+    registerBackgroundFetchAsync();
+
+  }, []);
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+      <Text>This client has been connected successfully</Text>
+      <Text>You can close this app now</Text>
       <StatusBar style="auto" />
     </View>
   );
@@ -18,3 +28,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+
